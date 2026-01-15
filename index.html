@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Course Payment</title>
+</head>
+<body>
+<h2 style="text-align:center;">Complete Your Purchase</h2>
+
+<div style="max-width:400px;margin:auto;">
+  
+  <!-- User Info -->
+  <label>Full Name:</label><br>
+  <input type="text" id="fullname" placeholder="John Doe" style="width:100%;padding:8px;margin-bottom:10px;"><br>
+  
+  <label>Email:</label><br>
+  <input type="email" id="email" placeholder="example@email.com" style="width:100%;padding:8px;margin-bottom:10px;"><br>
+  
+  <label>Phone Number:</label><br>
+  <input type="tel" id="phone" placeholder="+2348012345678" style="width:100%;padding:8px;margin-bottom:10px;"><br>
+  
+  <!-- Country Selection -->
+  <label>Select Country:</label><br>
+  <select id="country" onchange="updatePayment()" style="width:100%;padding:8px;margin-bottom:20px;">
+    <option value="">-- Choose Country --</option>
+    <option value="NG">Nigeria</option>
+    <option value="GH">Ghana</option>
+    <option value="KE">Kenya</option>
+    <option value="ZA">South Africa</option>
+    <option value="UG">Uganda</option>
+    <option value="TZ">Tanzania</option>
+    <option value="RW">Rwanda</option>
+    <option value="ZM">Zambia</option>
+    <option value="XOF">West Africa (XOF)</option>
+    <option value="XAF">Central Africa (XAF)</option>
+    <option value="INT">International (USD)</option>
+  </select>
+  
+  <button id="payBtn" style="display:none;width:100%;padding:12px;font-size:16px;background:#4CAF50;color:white;border:none;border-radius:5px;">Pay Now</button>
+</div>
+
+<script src="https://checkout.flutterwave.com/v3.js"></script>
+
+<script>
+let currency = "";
+let amount = 0;
+
+function updatePayment() {
+  const c = document.getElementById("country").value;
+  const btn = document.getElementById("payBtn");
+
+  const prices = {
+    NG: { currency: "NGN", amount: 5500, label: "Pay ₦5,500" },
+    GH: { currency: "GHS", amount: 55, label: "Pay ₵55" },
+    KE: { currency: "KES", amount: 550, label: "Pay KES 550" },
+    ZA: { currency: "ZAR", amount: 65, label: "Pay R65" },
+    UG: { currency: "UGX", amount: 13000, label: "Pay UGX 13,000" },
+    TZ: { currency: "TZS", amount: 9000, label: "Pay TZS 9,000" },
+    RW: { currency: "RWF", amount: 4500, label: "Pay RWF 4,500" },
+    ZM: { currency: "ZMW", amount: 95, label: "Pay ZMW 95" },
+    XOF:{ currency: "XOF", amount: 2200, label: "Pay XOF 2,200" },
+    XAF:{ currency: "XAF", amount: 2200, label: "Pay XAF 2,200" },
+    INT:{ currency: "USD", amount: 3.45, label: "Pay $3.45" }
+  };
+
+  if (!prices[c]) {
+    btn.style.display = "none";
+    return;
+  }
+
+  currency = prices[c].currency;
+  amount = prices[c].amount;
+  btn.innerText = prices[c].label;
+  btn.style.display = "block";
+}
+
+document.getElementById("payBtn").onclick = function () {
+  // Get user info
+  const fullname = document.getElementById("fullname").value;
+  const email = document.getElementById("email").value;
+  const phone = document.getElementById("phone").value;
+
+  if (!fullname || !email || !phone || !currency) {
+    alert("Please fill all fields and select your country.");
+    return;
+  }
+
+  FlutterwaveCheckout({
+    public_key: "FLWPUBK-ee15b10a208a4d48efab9383fa4d04fc-X",
+    tx_ref: "COURSE-" + Date.now(),
+    amount: amount,
+    currency: currency,
+    customer: { 
+      name: fullname,
+      email: email,
+      phone_number: phone
+    },
+    callback: function (data) {
+      if (data.status === "successful") {
+        window.location.href = "https://www.nabprogram.work.gd/thankyoupage";
+      }
+    },
+    customizations: {
+      title: "Your Course Name",
+      description: "Course Access"
+    }
+  });
+};
+</script>
